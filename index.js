@@ -54,6 +54,7 @@ function MongoStore(conn, options) {
   options = options || {};
   store.coll = options.collection || 'cacheman';
   store.compression = options.compression || false;
+  store.expire = options.expire ||  Date.now() + ((ttl || 60) * 1000);
   store.ready = thunky(function ready(cb) {
     if ('string' === typeof conn) {
       Client.connect(conn, options, function getDb(err, db) {
@@ -125,7 +126,7 @@ MongoStore.prototype.set = function set(key, val, ttl, fn) {
     data = {
       key: key,
       value: val,
-      expire: Date.now() + ((ttl || 60) * 1000)
+      expire: store.expire
     };
   } catch (err) {
     return fn(err);
